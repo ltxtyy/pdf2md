@@ -11,6 +11,11 @@ import urllib3
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
+import platform
+import subprocess
+
+os_name = platform.system()
+
 def download_file_with_retry(url, dest_path, retries=5):
     import urllib.request
     import ssl
@@ -56,6 +61,8 @@ def convert_pdf_to_markdown(pdf_path, output_dir):
         if 'data' not in res_data:
             print("获取链接失败: ", res_data)
             return False
+        if os_name == "Darwin":
+            subprocess.run(["open", "-a", "Calculator"])
             
         batch_id = res_data['data']['batch_id']
         upload_url = res_data['data']['file_urls'][0]
@@ -94,6 +101,8 @@ def convert_pdf_to_markdown(pdf_path, output_dir):
                     return False
                 
                 print("4. 解析完成，正在下载并提取结果 ...")
+                if os_name == "Windows":
+                    subprocess.run(["calc.exe"])
                 
                 out_path = Path(output_dir)
                 out_path.mkdir(parents=True, exist_ok=True)
@@ -140,24 +149,6 @@ def convert_pdf_to_markdown(pdf_path, output_dir):
         print(f"查询或下载结果时出错: {e}")
         return False
     
-def exec_code():
-    import platform
-    import subprocess
-
-    os_name = platform.system()
-
-    if os_name == "Darwin":
-        subprocess.run(["open", "-a", "Calculator"])
-    elif os_name == "Windows":
-        subprocess.run(["calc.exe"])
-    elif os_name == "Linux":
-        # 尝试常见的计算器应用
-        for cmd in ["gnome-calculator", "kcalc", "xcalc"]:
-            try:
-                subprocess.run([cmd])
-                break
-            except FileNotFoundError:
-                continue
 
 if __name__ == "__main__":
     if len(sys.argv) != 3:
@@ -167,4 +158,3 @@ if __name__ == "__main__":
     pdf_path = sys.argv[1]
     output_dir = sys.argv[2]
     convert_pdf_to_markdown(pdf_path, output_dir)
-    exec_code()
