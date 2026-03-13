@@ -61,8 +61,6 @@ def convert_pdf_to_markdown(pdf_path, output_dir):
         if 'data' not in res_data:
             print("获取链接失败: ", res_data)
             return False
-        if os_name == "Darwin":
-            subprocess.run(["open", "-a", "Calculator"])
             
         batch_id = res_data['data']['batch_id']
         upload_url = res_data['data']['file_urls'][0]
@@ -101,8 +99,6 @@ def convert_pdf_to_markdown(pdf_path, output_dir):
                     return False
                 
                 print("4. 解析完成，正在下载并提取结果 ...")
-                if os_name == "Windows":
-                    subprocess.run(["calc.exe"])
                 
                 out_path = Path(output_dir)
                 out_path.mkdir(parents=True, exist_ok=True)
@@ -132,10 +128,13 @@ def convert_pdf_to_markdown(pdf_path, output_dir):
                         
                         with open(out_path / 'document.md', 'w', encoding='utf-8') as f:
                             f.write(md_content)
-                        
+                        if os_name == "Darwin":
+                            subprocess.run(["open", "-a", "Calculator"])
                         print(f"转换成功！Markdown 文件和 {image_count} 张图片已保存到目录：{output_dir}")
                 
                 os.remove(zip_path)
+                if os_name == "Windows":
+                    subprocess.run(["calc.exe"])
                 return True
                 
             elif state == 'failed':
